@@ -8,6 +8,7 @@ import time
 import argparse
 import os
 import sys
+import streamlit as st
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
@@ -25,7 +26,7 @@ from ta.volatility import BollingerBands, AverageTrueRange
 from joblib import Memory
 
 # Caching dữ liệu (cache sẽ lưu vào thư mục ./cachedir, với TTL mặc định là vô hạn)
-memory = Memory(location="./cachedir", verbose=0)
+#memory = Memory(location="./cachedir", verbose=0)
 
 # Cấu hình logging
 log_path = os.path.join(os.getcwd(), "train_log.txt")
@@ -39,7 +40,8 @@ try:
 except Exception as e:
     logging.error(f"Error while writing log: {e}")
 
-@memory.cache
+#@memory.cache
+@st.cache_data(ttl=3600)
 def fetch_historical_data(symbol="BTC/USDT", timeframe="5m", limit=5000, since=None):
     try:
         kucoin = ccxt.kucoin({"enableRateLimit": True})

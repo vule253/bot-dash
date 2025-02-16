@@ -14,7 +14,7 @@ if "bot_process" not in st.session_state:
     st.session_state["bot_process"] = None
 
 # Lấy danh sách top 100 coin từ CoinGecko và lọc stablecoin
-#@st.cache_data(ttl=3600)
+@st.cache_data(ttl=3600)
 def get_top_coins_from_coingecko(limit=100):
     url = "https://api.coingecko.com/api/v3/coins/markets"
     params = {
@@ -43,8 +43,8 @@ def get_top_coins_from_coingecko(limit=100):
     return coin_symbols
 
 all_top_coins = get_top_coins_from_coingecko(limit=100)
-if not all_top_coins:
-    all_top_coins = ["BTC", "ETH", "ADA", "XRP", "BNB", "SOL"]
+#if not all_top_coins:
+#    all_top_coins = ["BTC", "ETH", "ADA", "XRP", "BNB", "SOL"]
 
 # Danh sách coin được chọn; nếu cần, bạn có thể thêm lọc theo sàn KuCoin hỗ trợ
 coin_options = all_top_coins  

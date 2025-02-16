@@ -24,9 +24,21 @@ from ta.momentum import RSIIndicator, WilliamsRIndicator
 from ta.volume import OnBalanceVolumeIndicator
 from ta.volatility import BollingerBands, AverageTrueRange
 from joblib import Memory
+import pytz
+from datetime import datetime
 
 # Caching dữ liệu (cache sẽ lưu vào thư mục ./cachedir, với TTL mặc định là vô hạn)
 #memory = Memory(location="./cachedir", verbose=0)
+
+# Hàm chuyển đổi thời gian UTC sang múi giờ local (ví dụ: Asia/Ho_Chi_Minh)
+def utc_to_local(utc_dt, tz_str="Asia/Ho_Chi_Minh"):
+    tz = pytz.timezone(tz_str)
+    return utc_dt.replace(tzinfo=pytz.UTC).astimezone(tz)
+
+def local_time_str(tz_str="Asia/Ho_Chi_Minh"):
+    tz = pytz.timezone(tz_str)
+    return datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
+
 
 # Cấu hình logging
 log_path = os.path.join(os.getcwd(), "train_log.txt")
@@ -202,9 +214,11 @@ if __name__ == "__main__":
     if args.once:
         train_and_select_best_model(threshold=args.threshold, coin=args.coin)
     else:
+        # Nếu muốn train vào 00:00 giờ local (Asia/Ho_Chi_Minh), với UTC+7 thì 00:00 local tương đương với 17:00 UTC.
+        schedule.every().day.at("17:00").do(lambda: train_and_select_best_model(threshold=args.threshold, coin=args.coin))
+        logging.info("⏳ Bot waiting for scheduled training... (Schedule set for 17:00 UTC, i.e., 00:00 local)")
+        # Train ngay lần đầu
         train_and_select_best_model(threshold=args.threshold, coin=args.coin)
-        schedule.every().day.at("00:00").do(lambda: train_and_select_best_model(threshold=args.threshold, coin=args.coin))
-        logging.info("⏳ Bot waiting for scheduled training...")
         while True:
             schedule.run_pending()
             time.sleep(60)

@@ -1,0 +1,34 @@
+# Giao diện dashboard sử dụng Streamlit
+streamlit==1.42.0
+
+# Xử lý dữ liệu
+pandas
+numpy
+requests
+schedule
+
+# Giao tiếp với sàn giao dịch (API)
+ccxt
+
+# Lưu trữ mô hình và các đối tượng huấn luyện
+joblib
+
+# Thư viện tính chỉ báo kỹ thuật
+ta
+
+# Học máy và GridSearch, đánh giá mô hình
+scikit-learn
+
+# Xử lý dữ liệu mất cân bằng
+imbalanced-learn
+
+# Các mô hình nâng cao
+xgboost
+lightgbm
+
+# Vẽ biểu đồ
+matplotlib
+
+# Hỗ trợ retry cho các lệnh API
+retry
+

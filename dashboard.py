@@ -14,7 +14,7 @@ if "bot_process" not in st.session_state:
     st.session_state["bot_process"] = None
 
 # Lấy danh sách top 100 coin từ CoinGecko và lọc stablecoin
-@st.cache_data(ttl=3600)
+#@st.cache_data(ttl=3600)
 def get_top_coins_from_coingecko(limit=100):
     url = "https://api.coingecko.com/api/v3/coins/markets"
     params = {
@@ -110,10 +110,10 @@ def train_model():
     responses = {}
     for coin in selected_coins:
         process = subprocess.run(
-            ["python", "daily_train.py", "--coin", coin, "--once"],
-            capture_output=True,
-            text=True,
-            cwd=os.getcwd()
+        [sys.executable, "daily_train.py", "--coin", coin, "--once"],
+        capture_output=True,
+        text=True,
+        cwd=os.getcwd()
         )
         responses[coin] = process.stdout if process.returncode == 0 else process.stderr
     output_text = "\n\n".join([f"{coin}:\n{res}" for coin, res in responses.items()])

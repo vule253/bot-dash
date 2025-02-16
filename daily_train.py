@@ -39,7 +39,7 @@ try:
 except Exception as e:
     logging.error(f"Error while writing log: {e}")
 
-@memory.cache
+#@memory.cache
 def fetch_historical_data(symbol="BTC/USDT", timeframe="5m", limit=5000, since=None):
     try:
         kucoin = ccxt.kucoin({"enableRateLimit": True})

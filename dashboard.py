@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import subprocess
 import sys
 import requests
+import threading
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -108,17 +109,36 @@ def stop_bot():
 def train_model():
     train_status.info("🔄 Training model for selected coin(s)...")
     responses = {}
+    threads = []
+    # Hàm chạy train cho 1 coin, chạy trong background thread
+
+    def run_train(coin):
+        try:
+            process = subprocess.Popen(
+                [sys.executable, "daily_train.py", "--coin", coin, "--once"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                cwd=os.getcwd()
+            )
+            # Đặt timeout (ví dụ 120 giây); nếu quá thời gian, kill process
+            try:
+                out, err = process.communicate(timeout=120)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                out, err = process.communicate()
+            responses[coin] = out.decode("utf-8") if process.returncode == 0 else err.decode("utf-8")
+        except Exception as ex:
+            responses[coin] = f"Error: {ex}"
+
+    # Khởi chạy train cho mỗi coin trong background thread
     for coin in selected_coins:
-        process = subprocess.run(
-        [sys.executable, "daily_train.py", "--coin", coin, "--once"],
-        capture_output=True,
-        text=True,
-        cwd=os.getcwd()
-        )
-        responses[coin] = process.stdout if process.returncode == 0 else process.stderr
-    output_text = "\n\n".join([f"{coin}:\n{res}" for coin, res in responses.items()])
-    train_status.success("✅ Model training completed!")
-    st.text_area("Training Log", output_text, height=300)
+        t = threading.Thread(target=run_train, args=(coin,))
+        t.start()
+        threads.append(t)
+
+    # Nếu bạn join threads thì luồng chính sẽ bị block – thay vào đó, bạn có thể chạy join với timeout hoặc cập nhật thông báo
+    for t in threads:
+        t.join(timeout=130)
 
 st.sidebar.markdown("### 🎮 Bot Control")
 if st.sidebar.button("▶ Start Bot"):
